@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32_STA_WEBPAGE</title>
+    <style>
+        body {
+            background-color: aqua;
+        }
+
+        /* WiFi credentials input form  */
+        #form {
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #Insideform {
+
+            border-style: solid;
+            border-radius: 10px;
+
+        }
+
+        #ssid,
+        #pass {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 30px;
+        }
+
+        #Wifi-form,
+        #esp_contorls {
+            font-size: 25px;
+            font-family: sans-serif;
+        }
+
+        #save {
+            background-color: greenyellow;
+            font-size: 20px;
+            border-radius: 5px;
+            border-color: palegreen;
+        }
+        /* WiFi credentials input form  */
+
+        /* Delete the wifi credentials  */
+        #delete_p {
+            font-size: 30px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+        }
+
+        #delete {
+            background-color: red;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            border-radius: 5px;
+            border-color: palegreen;
+        }
+        
+        /* Show the current status of the ESP32 */
+        #show
+        {
+            font-size: 30px;
+            color: whitesmoke;
+        }
+
+        /* Esp32 control buttons */
+        #led_button,
+        #Serial_print,
+        #secret1,
+        #secret2 {
+            background-color: lemonchiffon;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            border-radius: 5px;
+            border-color: palegreen;
+            margin: 20px;
+        }
+
+        #esp {
+            align-items: center;
+            justify-content: center;
+            margin: 30px;
+
+        }
+
+        #esp_contorls {
+            margin-left: 50px;
+        }
+
+        /* WiFi credentials delete button or option */
+        #delete_but {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
+        }
+    </style>
+    <script>
+        let led = false
+        // function to handle handle led toggle 
+        async function Toggle_led() {
+            led = !led
+            if(led)
+            {
+                document.getElementById("show").innerHTML="Led turned on"
+            }
+            else{
+                document.getElementById("show").innerHTML="Led turned OFF"
+            }
+            const response = await fetch("http://Esp_server.local/led", {
+                method: "POST",
+                body: JSON.stringify({ on: led }),
+                headers: { "Content-type": "application/json" },
+            })
+            
+        };
+        // function to handle clearing data from the NVS storage
+        async function NVS_clear() {
+            led = !led
+            const response = await fetch("http://Esp_server.local/delete", {
+                method: "POST",
+                body: JSON.stringify({ NVS_del: led }),
+                headers: { "Content-type": "application/json" },
+            })
+            document.getElementById("show").innerHTML = "NVS storage got deleted!!!!!"
+        };
+        // function to handle print the content in the LCD and Serial monitor 
+        async function Toggle_print() {
+            led = !led
+            const response = await fetch("http://Esp_server.local/print", {
+                method: "POST",
+                body: JSON.stringify({ print_serial: led }),
+                headers: { "Content-type": "application/json" },
+            })
+        };
+        // function to handle goto the weather website 
+        function weather() {
+            const redirecturl = "https://weather.gc.ca/canada_e.html";
+            window.location.href = redirecturl;
+        };
+    </script>
+    </body>
+</head>
+
+<body>
+    <!-- Form to save the WiFi credentials  -->
+    <div id="form">
+        <div id="container">
+            <form id="Insideform" action="/get" method="post">
+                <h2 id="Wifi-form">WiFi configuration</h2>
+                <label id="ssid">SSID</label><br>
+                <input type="text" id="input_ssid" name="SSID"><br><br>
+                <label id="pass">Password</label><br>
+                <input type="password" id="input_pass" name="pass"><br><br>
+                <input id="save" type="submit" value="save">
+                <p>Password need to be greater than 8 characters</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete button for deleting WiFi credentials -->
+    <p id="show" class="show">nothing 😎😎😎</p>
+    
+    <!-- ESP322 button contorl -->
+
+    <div id="esp_button">
+        <div id="esp">
+            <h2 id="esp_contorls">ESP32 Button Contorls </h2>
+            <div id="delete_but">
+                <p id="delete_p">To clear the WiFi credentials press here</p>
+                <!-- send response from the server  -->
+                <button id="delete" onclick="NVS_clear()">Delete </button>
+            </div>
+        
+            <button id="led_button" onclick="Toggle_led()">Led_pushbutton</button>
+            <button id="Serial_print" onclick="Toggle_print()">Print</button>
+            <button id="secret1" onclick="weather()">weather</button>
+        </div>
+    </div>
+
+</html>
